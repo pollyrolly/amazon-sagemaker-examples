@@ -31,6 +31,9 @@ from six.moves import cPickle as pickle
 from six.moves import xrange  # pylint: disable=redefined-builtin
 from six.moves import urllib
 
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 CIFAR_FILENAME = "cifar-10-python.tar.gz"
 CIFAR_DOWNLOAD_URL = "https://www.cs.toronto.edu/~kriz/" + CIFAR_FILENAME
 CIFAR_LOCAL_FOLDER = "cifar-10-batches-py"
@@ -83,7 +86,7 @@ def _get_file_names():
 
 
 def read_pickle_from_file(filename):
-    with tf.gfile.Open(filename, "rb") as f:
+    with tf.io.gfile.GFile(filename, "rb") as f:
         if sys.version_info >= (3, 0):
             data_dict = pickle.load(f, encoding="bytes")
         else:
@@ -94,7 +97,7 @@ def read_pickle_from_file(filename):
 def convert_to_tfrecord(input_files, output_file):
     """Converts a file to TFRecords."""
     print("Generating %s" % output_file)
-    with tf.python_io.TFRecordWriter(output_file) as record_writer:
+    with tf.io.TFRecordWriter(output_file) as record_writer:
         for input_file in input_files:
             data_dict = read_pickle_from_file(input_file)
             data = data_dict[b"data"]
